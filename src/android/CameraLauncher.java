@@ -316,7 +316,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
       }
       // create new file handle to get full resolution crop
       croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
-      cropIntent.putExtra("output", croppedUri);
+      cropIntent.putExtra("output", croppedUri+"HEY THERE BUDDY");
 
       // start the activity - we handle returning in onActivityResult
 
@@ -551,7 +551,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
                             String modifiedPath = this.ouputModifiedBitmap(bitmap, uri);
                             // The modified image is cached by the app in order to get around this and not have to delete you
                             // application cache I'm adding the current system time to the end of the file url.
-                            this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis() + " file://" + uri.toString());
+                            this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis());
                         } catch (Exception e) {
                             e.printStackTrace();
                             this.failPicture("Error retrieving image.");
