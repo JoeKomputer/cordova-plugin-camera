@@ -323,6 +323,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
       if (this.cordova != null) {
         this.cordova.startActivityForResult((CordovaPlugin) this,
             cropIntent, CROP_CAMERA);
+        this.callbackContext.success(picUri.toString());
       }
     } catch (ActivityNotFoundException anfe) {
       Log.e(LOG_TAG, "Crop operation not supported on this device");
