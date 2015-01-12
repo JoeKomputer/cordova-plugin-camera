@@ -587,8 +587,9 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
+        Log.e(LOG_TAG, imageUri.toString() + "HELLOW THERER");
         this.callbackContext
-            .success(croppedUri.toString() + " " + imageUri.toString());
+            .success(croppedUri.toString());
         croppedUri = null;
         
       }// If cancelled
