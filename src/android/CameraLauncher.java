@@ -551,7 +551,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
                             String modifiedPath = this.ouputModifiedBitmap(bitmap, uri);
                             // The modified image is cached by the app in order to get around this and not have to delete you
                             // application cache I'm adding the current system time to the end of the file url.
-                            this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis() + "?" + uri.toString());
+                            this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis() + " file://" + uri.toString());
                         } catch (Exception e) {
                             e.printStackTrace();
                             this.failPicture("Error retrieving image.");
