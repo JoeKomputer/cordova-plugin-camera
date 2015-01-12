@@ -321,7 +321,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
       // start the activity - we handle returning in onActivityResult
 
       if (this.cordova != null) {
-        this.callbackContext.success(picUri.toString());
         this.cordova.startActivityForResult((CordovaPlugin) this,
             cropIntent, CROP_CAMERA);
        
@@ -442,7 +441,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         } else {
             throw new IllegalStateException();
         }
-
+        this.callbackContext.success(uri.toString());
         this.cleanup(FILE_URI, this.imageUri, uri, bitmap);
         bitmap = null;
     }
