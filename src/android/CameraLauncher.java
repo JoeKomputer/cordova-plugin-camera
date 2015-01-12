@@ -316,7 +316,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
       }
       // create new file handle to get full resolution crop
       croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
-      cropIntent.putExtra("output", croppedUri+"HEY THERE BUDDY");
+      cropIntent.putExtra("output", croppedUri);
 
       // start the activity - we handle returning in onActivityResult
 
@@ -588,7 +588,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
         this.callbackContext
-            .success(croppedUri.toString());
+            .success(croppedUri.toString() + " " + imageUri.toString());
         croppedUri = null;
         
       }// If cancelled
