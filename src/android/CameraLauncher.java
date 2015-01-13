@@ -96,7 +96,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private MediaScannerConnection conn;    // Used to update gallery app with newly-written files
     private Uri scanMe;                     // Uri of image to be added to content store
     private Uri croppedUri;
-    private Uri fullUri;
+    private Bitmap thumbNailBitmap;
 
     /**
      * Executes the request and returns PluginResult.
@@ -182,9 +182,10 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         // Create the cache directory if it doesn't exist
-        if(!cache.exists()){
+        if(!cache.exits()){
           cache.mkdirs();
         }
+        
         return cache.getAbsolutePath();
     }
 
@@ -360,8 +361,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         Bitmap bitmap = null;
+        thumbNailBitmap = null;
         Uri uri = null;
-        Uri uriFull = null;
 
         // If sending base64 image back
         if (destType == DATA_URL) {
@@ -398,7 +399,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
             } else {
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
-                uriFull = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/small.jpg"));
             }
 
             if (uri == null) {
@@ -413,16 +413,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 this.callbackContext.success(uri.toString());
             } else {
+                thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
-                fullUri = uriFull;
                 if (rotate != 0 && this.correctOrientation) {
                     bitmap = getRotatedBitmap(rotate, bitmap, exif);
                 }
 
                 // Add compressed version of captured image to returned media store Uri
                 OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
-                os = this.cordova.getActivity().getContentResolver().openOutputStream(fullUri);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
                 os.close();
 
@@ -594,9 +592,13 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();  
+        thumbNailBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        thumbNail = Base64.encodeToString(byteArray, Base64.DEFAULT);
         JSONArray imageArray = new JSONArray();
         imageArray.put(fullUri.toString());
-        imageArray.put(croppedUri.toString());
+        imageArray.put(thumbNail);
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
