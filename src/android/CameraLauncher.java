@@ -597,7 +597,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
         JSONArray imageArray = new JSONArray();
-        imageArray.put(imageUri.toString());
+        imageArray.put(fullUri.toString());
         imageArray.put(croppedUri.toString());
         Log.e(LOG_TAG, imageArray + "HELLOW THERER");
         this.callbackContext
