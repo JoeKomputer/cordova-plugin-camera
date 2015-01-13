@@ -96,6 +96,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private MediaScannerConnection conn;    // Used to update gallery app with newly-written files
     private Uri scanMe;                     // Uri of image to be added to content store
     private Uri croppedUri;
+    private Uri fullUri;
 
     /**
      * Executes the request and returns PluginResult.
@@ -358,6 +359,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         Bitmap bitmap = null;
         Uri uri = null;
+        Uri uriFull = null;
 
         // If sending base64 image back
         if (destType == DATA_URL) {
@@ -394,6 +396,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
             } else {
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
+                uriFull = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/small.jpg"));
             }
 
             if (uri == null) {
@@ -408,8 +411,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 this.callbackContext.success(uri.toString());
             } else {
+                writeUncompressedImage(uriFull);
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
-
+                fullUri = uriFull.toString();
                 if (rotate != 0 && this.correctOrientation) {
                     bitmap = getRotatedBitmap(rotate, bitmap, exif);
                 }
@@ -587,9 +591,13 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
+        JSONArray imageArray = new JSONArray();
+        imageArray.put(fullUri);
+        imageArray.put(croppedUri);
         this.callbackContext
-            .success(croppedUri.toString());
+            .success(imageArray);
         croppedUri = null;
+        fullUri = null;
         
       }// If cancelled
       else if (resultCode == Activity.RESULT_CANCELED) {
