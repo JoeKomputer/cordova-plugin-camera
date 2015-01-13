@@ -419,12 +419,12 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 // Add compressed version of captured image to returned media store Uri
                 LOG.e(LOG_TAG,"SHIT FUCK1= " + thumbNailBitmap);
-                 thumbNailBitmap = MediaStore.Images.Thumbnails.getThumbnail(
-                             this.cordova.getActivity().getContentResolver(), uri,
+                OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri);
+                thumbNailBitmap = MediaStore.Images.Thumbnails.getThumbnail(
+                             os, uri,
                              MediaStore.Images.Thumbnails.MICRO_KIND,
                              (BitmapFactory.Options) null );
                 LOG.e(LOG_TAG,"SHIT FUCK2= " + thumbNailBitmap);
-                OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
                 os.close();
 
