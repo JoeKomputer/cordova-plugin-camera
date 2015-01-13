@@ -96,7 +96,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private MediaScannerConnection conn;    // Used to update gallery app with newly-written files
     private Uri scanMe;                     // Uri of image to be added to content store
     private Uri croppedUri;
-    private Bitmap thumbNailBitmap;
 
     /**
      * Executes the request and returns PluginResult.
@@ -182,9 +181,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         // Create the cache directory if it doesn't exist
-        if(!cache.exists()){
           cache.mkdirs();
-        }
+        
         
         return cache.getAbsolutePath();
     }
@@ -361,7 +359,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         Bitmap bitmap = null;
-        thumbNailBitmap = null;
         Uri uri = null;
 
         // If sending base64 image back
@@ -413,7 +410,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 this.callbackContext.success(uri.toString());
             } else {
-                thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
                 if (rotate != 0 && this.correctOrientation) {
                     bitmap = getRotatedBitmap(rotate, bitmap, exif);
@@ -592,10 +588,8 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();  
-        thumbNailBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        String thumbNail = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        Bitmap thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
+        String thumbNail = processPictureReturn(thumbNailBitmap);
         JSONArray imageArray = new JSONArray();
         imageArray.put(croppedUri.toString());
         imageArray.put(thumbNail);
@@ -927,7 +921,27 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
             return android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI;
         }
     }
-
+/**
+     * Compress bitmap using jpeg, convert to Base64 encoded string, and return to JavaScript.
+     *
+     * @param bitmap
+     */
+    public void processPictureReturn(Bitmap bitmap) {
+        ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
+        try {
+            if (bitmap.compress(CompressFormat.JPEG, mQuality, jpeg_data)) {
+                byte[] code = jpeg_data.toByteArray();
+                byte[] output = Base64.encode(code, Base64.NO_WRAP);
+                String js_out = new String(output);
+                output = null;
+                code = null;
+                return js_out;
+            }
+        } catch (Exception e) {
+            this.failPicture("Error compressing image.");
+        }
+        jpeg_data = null;
+    }
     /**
      * Compress bitmap using jpeg, convert to Base64 encoded string, and return to JavaScript.
      *
