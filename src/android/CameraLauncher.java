@@ -182,7 +182,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         // Create the cache directory if it doesn't exist
-        cache.mkdirs();
+        if(!cache.exists()){
+          cache.mkdirs();
+        }
         return cache.getAbsolutePath();
     }
 
