@@ -186,6 +186,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         // Create the cache directory if it doesn't exist
         if (!cache.exists()) {
+          Log.e(LOG_TAG, cache +" THIS IS CACHE");
         cache.mkdirs();
         }
         
@@ -240,14 +241,18 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         if (encodingType == JPEG) {
           if(picType == FULL){
              photo = new File(getTempDirectoryPath(), ".Pic.jpg");
+             Log.e(LOG_TAG, photo +" MARKER HERE "+ picType);
            }else{
              photo = new File(getTempDirectoryPath(), ".Pic2.jpg");
+             Log.e(LOG_TAG, photo +" MARKER HERE "+ picType);
            }
         } else if (encodingType == PNG) {
            if(picType == FULL){
              photo = new File(getTempDirectoryPath(), ".Pic.png");
+             Log.e(LOG_TAG, photo +" MARKER HERE "+ picType);
            }else{
              photo = new File(getTempDirectoryPath(), ".Pic2.png");
+             Log.e(LOG_TAG, photo +" MARKER HERE "+ picType);
            }
         } else {
             throw new IllegalArgumentException("Invalid Encoding Type: " + encodingType);
