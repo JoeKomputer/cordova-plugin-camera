@@ -96,6 +96,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private MediaScannerConnection conn;    // Used to update gallery app with newly-written files
     private Uri scanMe;                     // Uri of image to be added to content store
     private Uri croppedUri;
+    private Bitmap thumbNailBitmap;
 
     /**
      * Executes the request and returns PluginResult.
@@ -416,6 +417,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
 
                 // Add compressed version of captured image to returned media store Uri
+                thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
                 OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
                 os.close();
@@ -587,8 +589,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // if camera crop
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
-        // // Send Uri back to JavaScript for viewing image
-        Bitmap thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
+        // // Send Uri back to JavaScript for viewing image 
         String thumbNail = processPictureReturn(thumbNailBitmap);
         JSONArray imageArray = new JSONArray();
         imageArray.put(croppedUri.toString());
