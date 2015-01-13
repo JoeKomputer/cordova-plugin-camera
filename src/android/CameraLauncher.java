@@ -924,9 +924,9 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
 /**
      * Compress bitmap using jpeg, convert to Base64 encoded string, and return to JavaScript.
      *
-     * @param bitmap
+     * @return String
      */
-    public String processPictureReturn(Bitmap bitmap) {
+    private String processPictureReturn(Bitmap bitmap) {
         ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
             if (bitmap.compress(CompressFormat.JPEG, mQuality, jpeg_data)) {
                 byte[] code = jpeg_data.toByteArray();
