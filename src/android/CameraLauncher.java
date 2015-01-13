@@ -348,22 +348,15 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         // Create an ExifHelper to save the exif data that is lost during compression
         ExifHelper exif = new ExifHelper();
-        ExifHelper exif2 = new ExifHelper();
         try {
             if (this.encodingType == JPEG) {
-                exif.createInFile(getTempDirectoryPath() + "/.smallPic.jpg");
+                exif.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
                 exif.readExifData();
                 rotate = exif.getOrientation();
-                exif2.createInFile(getTempDirectoryPath() + "/.largePic.png");
-                exif2.readExifData();
-                rotate = exif2.getOrientation();
             } else if (this.encodingType == PNG) {
-                exif.createInFile(getTempDirectoryPath() + "/.smallPic.png");
+                exif.createInFile(getTempDirectoryPath() + "/.Pic.png");
                 exif.readExifData();
                 rotate = exif.getOrientation();
-                exif2.createInFile(getTempDirectoryPath() + "/.largePic.png");
-                exif2.readExifData();
-                rotate = exif2.getOrientation();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -442,8 +435,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     }
                     exif.createOutFile(exifPath);
                     exif.writeExifData();
-                    exif2.createOutFile(exifPath);
-                    exif2.writeExifData();
                 }
                 if (this.allowEdit) {
                     performCrop(uri);
