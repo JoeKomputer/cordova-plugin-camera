@@ -441,7 +441,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         } else {
             throw new IllegalStateException();
         }
-        this.callbackContext.success(uri.toString());
         this.cleanup(FILE_URI, this.imageUri, uri, bitmap);
         bitmap = null;
     }
@@ -588,9 +587,12 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
-        Log.e(LOG_TAG, imageUri.toString() + "HELLOW THERER");
+        JSONArray imageArray = new JSONArray();
+        imageArray.put(imageUri.toString());
+        imageArray.put(croppedUri.toString());
+        Log.e(LOG_TAG, imageArray + "HELLOW THERER");
         this.callbackContext
-            .success(croppedUri.toString());
+            .success(imageArray);
         croppedUri = null;
         
       }// If cancelled
