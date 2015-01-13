@@ -413,7 +413,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 this.callbackContext.success(uri.toString());
             } else {
-                writeUncompressedImage(uriFull);
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
                 fullUri = uriFull;
                 if (rotate != 0 && this.correctOrientation) {
@@ -422,6 +421,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
                 // Add compressed version of captured image to returned media store Uri
                 OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
+                os = this.cordova.getActivity().getContentResolver().openOutputStream(fullUri);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
                 os.close();
 
