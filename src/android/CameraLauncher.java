@@ -209,8 +209,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 
         // Specify file so that large image is captured and returned
-        File photo = createCaptureFile(encodingType);
-        File photo2 = createCaptureFile(encodingType);
+        File photo = createCaptureFile(encodingType, FULL);
+        File photo2 = createCaptureFile(encodingType, THUMBNAIL);
         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo2));
         this.imageUri = Uri.fromFile(photo);
@@ -229,12 +229,21 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType of the image to be taken
      * @return a File object pointing to the temporary picture
      */
-    private File createCaptureFile(int encodingType) {
+    private File createCaptureFile(int encodingType, int picType) {
         File photo = null;
+       
         if (encodingType == JPEG) {
-            photo = new File(getTempDirectoryPath(), ".Pic.jpg");
+          if(picType == FULL){
+             photo = new File(getTempDirectoryPath(), ".Pic.jpg");
+           }else{
+             photo = new File(getTempDirectoryPath(), ".Pic2.jpg");
+           }
         } else if (encodingType == PNG) {
-            photo = new File(getTempDirectoryPath(), ".Pic.png");
+           if(picType == FULL){
+             photo = new File(getTempDirectoryPath(), ".Pic.png");
+           }else{
+             photo = new File(getTempDirectoryPath(), ".Pic2.png");
+           }
         } else {
             throw new IllegalArgumentException("Invalid Encoding Type: " + encodingType);
         }
@@ -271,10 +280,10 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     intent.putExtra("aspectX", 1);
                     intent.putExtra("aspectY", 1);
                 }
-                File photo = createCaptureFile(encodingType);
-                File photo2 = createCaptureFile(encodingType);
+                File photo = createCaptureFile(encodingType,FULL);
+                File photo2 = createCaptureFile(encodingType,THUMBNAIL);
                 croppedUri = Uri.fromFile(photo);
-                fullUri = Uri.fromFile(photo);
+                fullUri = Uri.fromFile(photo2);
                 intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, croppedUri);
                 intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, fullUri);
             } else {
@@ -359,14 +368,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 exif.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
                 exif.readExifData();
                 rotate = exif.getOrientation();
-                exif2.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
+                exif2.createInFile(getTempDirectoryPath() + "/.Pic2.jpg");
                 exif2.readExifData();
                 rotate = exif2.getOrientation();
             } else if (this.encodingType == PNG) {
                 exif.createInFile(getTempDirectoryPath() + "/.Pic.png");
                 exif.readExifData();
                 rotate = exif.getOrientation();
-                exif2.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
+                exif2.createInFile(getTempDirectoryPath() + "/.Pic2.jpg");
                 exif2.readExifData();
                 rotate = exif2.getOrientation();
             }
