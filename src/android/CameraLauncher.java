@@ -450,6 +450,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     String exifPath2;
                     if (this.saveToPhotoAlbum) {
                         exifPath = FileHelper.getRealPath(uri, this.cordova);
+                        exifPath2 = FileHelper.getRealPath(uri, this.cordova);
                     } else {
                         exifPath = uri.getPath();
                         exifPath2 = uri2.getPath();
