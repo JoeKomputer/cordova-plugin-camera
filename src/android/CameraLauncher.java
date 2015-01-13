@@ -83,6 +83,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private int targetWidth;                // desired width of the image
     private int targetHeight;               // desired height of the image
     private Uri imageUri;                   // Uri of captured image
+    private Uri imageUri2; 
     private int encodingType;               // Type of encoding to use
     private int mediaType;                  // What type of media to retrieve
     private boolean saveToPhotoAlbum;       // Should the picture be saved to the device's photo album
@@ -209,8 +210,11 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         // Specify file so that large image is captured and returned
         File photo = createCaptureFile(encodingType);
+        File photo2 = createCaptureFile(encodingType);
         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo));
+        intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(photo2));
         this.imageUri = Uri.fromFile(photo);
+        this.imageUri2 = Uri.fromFile(photo2);
 
         if (this.cordova != null) {
             this.cordova.startActivityForResult((CordovaPlugin) this, intent, (CAMERA + 1) * 16 + returnType + 1);
@@ -268,6 +272,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     intent.putExtra("aspectY", 1);
                 }
                 File photo = createCaptureFile(encodingType);
+                File photo2 = createCaptureFile(encodingType);
                 croppedUri = Uri.fromFile(photo);
                 fullUri = Uri.fromFile(photo);
                 intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, croppedUri);
@@ -300,11 +305,12 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
    * 
    * @param picUri
    */
-  private void performCrop(Uri picUri) {
+  private void performCrop(Uri picUri, Uri picUri2) {
     try {
       Intent cropIntent = new Intent("com.android.camera.action.CROP");
       // indicate image type and Uri
       cropIntent.setDataAndType(picUri, "image/*");
+      cropIntent.setDataAndType(picUri2, "image/*");
       // set crop properties
       cropIntent.putExtra("crop", "true");
       // indicate output X and Y
@@ -319,8 +325,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
           cropIntent.putExtra("aspectY", 1);
       }
       // create new file handle to get full resolution crop
-      croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "small.jpg"));
-      fullUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "large.jpg"));
+      croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/small.jpg"));
+      fullUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/large.jpg"));
       cropIntent.putExtra("output", croppedUri);
       //HERE IS SOME 1
       // start the activity - we handle returning in onActivityResult
@@ -364,6 +370,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         Bitmap bitmap = null;
         Uri uri = null;
+        Uri uri2 = null;
 
         // If sending base64 image back
         if (destType == DATA_URL) {
@@ -399,7 +406,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     uri = null;
                 }
             } else {
-                uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
+                uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/small.jpg"));
+                uri2 = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/large.jpg"));
             }
 
             if (uri == null) {
@@ -437,7 +445,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     exif.writeExifData();
                 }
                 if (this.allowEdit) {
-                    performCrop(uri);
+                    performCrop(uri,uri2);
                 } else {
                     // Send Uri back to JavaScript for viewing image
                     this.callbackContext.success(uri.toString());
