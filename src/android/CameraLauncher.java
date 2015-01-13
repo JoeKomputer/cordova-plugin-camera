@@ -269,7 +269,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
                 File photo = createCaptureFile(encodingType);
                 croppedUri = Uri.fromFile(photo);
+                fullUri = Uri.fromFile(photo);
                 intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, croppedUri);
+                intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, fullUri);
             } else {
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -317,8 +319,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
           cropIntent.putExtra("aspectY", 1);
       }
       // create new file handle to get full resolution crop
-      croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/small.jpg"));
-      fullUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/large.jpg"));
+      croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "small.jpg"));
+      fullUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "large.jpg"));
       cropIntent.putExtra("output", croppedUri);
       //HERE IS SOME 1
       // start the activity - we handle returning in onActivityResult
