@@ -96,6 +96,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private MediaScannerConnection conn;    // Used to update gallery app with newly-written files
     private Uri scanMe;                     // Uri of image to be added to content store
     private Uri croppedUri;
+    private Uri fullUri;
 
     /**
      * Executes the request and returns PluginResult.
@@ -316,8 +317,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
       }
       // create new file handle to get full resolution crop
       croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
+      fullUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
       cropIntent.putExtra("output", croppedUri);
-
+      //HERE IS SOME 1
       // start the activity - we handle returning in onActivityResult
 
       if (this.cordova != null) {
@@ -343,15 +345,22 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         // Create an ExifHelper to save the exif data that is lost during compression
         ExifHelper exif = new ExifHelper();
+        ExifHelper exif2 = new ExifHelper();
         try {
             if (this.encodingType == JPEG) {
-                exif.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
+                exif.createInFile(getTempDirectoryPath() + "/.smallPic.jpg");
                 exif.readExifData();
                 rotate = exif.getOrientation();
+                exif2.createInFile(getTempDirectoryPath() + "/.largePic.png");
+                exif2.readExifData();
+                rotate = exif2.getOrientation();
             } else if (this.encodingType == PNG) {
-                exif.createInFile(getTempDirectoryPath() + "/.Pic.png");
+                exif.createInFile(getTempDirectoryPath() + "/.smallPic.png");
                 exif.readExifData();
                 rotate = exif.getOrientation();
+                exif2.createInFile(getTempDirectoryPath() + "/.largePic.png");
+                exif2.readExifData();
+                rotate = exif2.getOrientation();
             }
         } catch (IOException e) {
             e.printStackTrace();
