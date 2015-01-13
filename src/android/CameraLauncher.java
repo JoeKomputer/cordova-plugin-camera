@@ -597,7 +597,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         byte[] byteArray = byteArrayOutputStream .toByteArray();
         thumbNail = Base64.encodeToString(byteArray, Base64.DEFAULT);
         JSONArray imageArray = new JSONArray();
-        imageArray.put(fullUri.toString());
+        imageArray.put(croppedUri.toString());
         imageArray.put(thumbNail);
         this.callbackContext
             .success(imageArray);
