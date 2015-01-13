@@ -926,7 +926,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      *
      * @param bitmap
      */
-    public void processPictureReturn(Bitmap bitmap) {
+    public String processPictureReturn(Bitmap bitmap) {
         ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
         try {
             if (bitmap.compress(CompressFormat.JPEG, mQuality, jpeg_data)) {
