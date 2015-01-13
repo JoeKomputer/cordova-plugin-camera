@@ -927,15 +927,16 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      * @return String
      */
     private String processPictureReturn(Bitmap bitmap) {
+        String js_out = null;
         ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
             if (bitmap.compress(CompressFormat.JPEG, mQuality, jpeg_data)) {
                 byte[] code = jpeg_data.toByteArray();
                 byte[] output = Base64.encode(code, Base64.NO_WRAP);
-                String js_out = new String(output);
+                js_out = new String(output);
                 output = null;
-                code = null;
-                return js_out;
+                code = null; 
             }
+             return js_out;
     }
     /**
      * Compress bitmap using jpeg, convert to Base64 encoded string, and return to JavaScript.
