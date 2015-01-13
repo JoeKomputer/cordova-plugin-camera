@@ -413,7 +413,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             } else {
                 writeUncompressedImage(uriFull);
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
-                fullUri = uriFull.toString();
+                fullUri = uriFull;
                 if (rotate != 0 && this.correctOrientation) {
                     bitmap = getRotatedBitmap(rotate, bitmap, exif);
                 }
@@ -592,8 +592,8 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
         JSONArray imageArray = new JSONArray();
-        imageArray.put(fullUri);
-        imageArray.put(croppedUri);
+        imageArray.put(fullUri.toString());
+        imageArray.put(croppedUri.toString());
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
