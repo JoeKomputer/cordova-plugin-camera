@@ -440,9 +440,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
                 os.close();
-                OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri2);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
-                os.close();
+                OutputStream os2 = this.cordova.getActivity().getContentResolver().openOutputStream(uri2);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os2);
+                os2.close();
 
                 // Restore exif data to file
                 if (this.encodingType == JPEG) {
