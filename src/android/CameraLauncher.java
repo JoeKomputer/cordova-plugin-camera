@@ -595,14 +595,13 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();  
         thumbNailBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream .toByteArray();
-        thumbNail = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        String thumbNail = Base64.encodeToString(byteArray, Base64.DEFAULT);
         JSONArray imageArray = new JSONArray();
         imageArray.put(croppedUri.toString());
         imageArray.put(thumbNail);
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
-        fullUri = null;
         
       }// If cancelled
       else if (resultCode == Activity.RESULT_CANCELED) {
