@@ -354,15 +354,22 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         // Create an ExifHelper to save the exif data that is lost during compression
         ExifHelper exif = new ExifHelper();
+        ExifHelper exif2 = new ExifHelper();
         try {
             if (this.encodingType == JPEG) {
                 exif.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
                 exif.readExifData();
                 rotate = exif.getOrientation();
+                exif2.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
+                exif2.readExifData();
+                rotate = exif2.getOrientation();
             } else if (this.encodingType == PNG) {
                 exif.createInFile(getTempDirectoryPath() + "/.Pic.png");
                 exif.readExifData();
                 rotate = exif.getOrientation();
+                exif2.createInFile(getTempDirectoryPath() + "/.Pic.jpg");
+                exif2.readExifData();
+                rotate = exif2.getOrientation();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -389,6 +396,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
             if (rotate != 0 && this.correctOrientation) {
                 bitmap = getRotatedBitmap(rotate, bitmap, exif);
+                bitmap = getRotatedBitmap(rotate, bitmap, exif2);
             }
 
             this.processPicture(bitmap);
@@ -432,17 +440,25 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
                 os.close();
+                OutputStream os = this.cordova.getActivity().getContentResolver().openOutputStream(uri2);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
+                os.close();
 
                 // Restore exif data to file
                 if (this.encodingType == JPEG) {
                     String exifPath;
+                    String exifPath2;
                     if (this.saveToPhotoAlbum) {
                         exifPath = FileHelper.getRealPath(uri, this.cordova);
                     } else {
                         exifPath = uri.getPath();
+                        exifPath2 = uri2.getPath();
                     }
                     exif.createOutFile(exifPath);
                     exif.writeExifData();
+                    exif2.createOutFile(exifPath2);
+                    exif2.writeExifData();
+
                 }
                 if (this.allowEdit) {
                     performCrop(uri,uri2);
