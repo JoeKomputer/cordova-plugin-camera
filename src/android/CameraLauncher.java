@@ -361,6 +361,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      */
     private void processResultFromCamera(int destType, Intent intent) throws IOException {
         int rotate = 0;
+        int rotate2 = 0;
 
         // Create an ExifHelper to save the exif data that is lost during compression
         ExifHelper exif = new ExifHelper();
@@ -372,20 +373,21 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 rotate = exif.getOrientation();
                 exif2.createInFile(getTempDirectoryPath() + "/.Pic2.jpg");
                 exif2.readExifData();
-                rotate = exif2.getOrientation();
+                rotate2 = exif2.getOrientation();
             } else if (this.encodingType == PNG) {
                 exif.createInFile(getTempDirectoryPath() + "/.Pic.png");
                 exif.readExifData();
                 rotate = exif.getOrientation();
                 exif2.createInFile(getTempDirectoryPath() + "/.Pic2.png");
                 exif2.readExifData();
-                rotate = exif2.getOrientation();
+                rotate2 = exif2.getOrientation();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         Bitmap bitmap = null;
+        Bitmap bitmap2 = null;
         Uri uri = null;
         Uri uri2 = null;
 
@@ -441,9 +443,11 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 this.callbackContext.success(uri.toString());
             } else {
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
+                bitmap2 = getScaledBitmap(FileHelper.stripFileProtocol(imageUri2.toString()));
 
                 if (rotate != 0 && this.correctOrientation) {
                     bitmap = getRotatedBitmap(rotate, bitmap, exif);
+                    bitmap2 = getRotatedBitmap(rotate2, bitmap2, exif2);
                 }
 
                 // Add compressed version of captured image to returned media store Uri
@@ -451,7 +455,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os);
                 os.close();
                 OutputStream os2 = this.cordova.getActivity().getContentResolver().openOutputStream(uri2);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os2);
+                bitmap2.compress(Bitmap.CompressFormat.JPEG, this.mQuality, os2);
                 os2.close();
 
                 // Restore exif data to file
@@ -482,6 +486,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             throw new IllegalStateException();
         }
         this.cleanup(FILE_URI, this.imageUri, uri, bitmap);
+        this.cleanup(FILE_URI, this.imageUri2, uri2, bitmap2);
         bitmap = null;
     }
 
@@ -496,6 +501,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // Some content: URIs do not map to file paths (e.g. picasa).
         String realPath = FileHelper.getRealPath(uri, this.cordova);
         ExifHelper exif = new ExifHelper();
+
         if (realPath != null && this.encodingType == JPEG) {
             try {
                 exif.createInFile(realPath);
