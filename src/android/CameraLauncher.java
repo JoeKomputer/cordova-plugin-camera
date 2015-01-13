@@ -72,6 +72,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
     private static final int JPEG = 0;                  // Take a picture of type JPEG
     private static final int PNG = 1;                   // Take a picture of type PNG
+    private static final int THUMBNAIL = 0;             // Thumbnail image
+    private static final int FULL = 1;                  // Full image
     private static final String GET_PICTURE = "Get Picture";
     private static final String GET_VIDEO = "Get Video";
     private static final String GET_All = "Get All";
@@ -375,7 +377,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 exif.createInFile(getTempDirectoryPath() + "/.Pic.png");
                 exif.readExifData();
                 rotate = exif.getOrientation();
-                exif2.createInFile(getTempDirectoryPath() + "/.Pic2.jpg");
+                exif2.createInFile(getTempDirectoryPath() + "/.Pic2.png");
                 exif2.readExifData();
                 rotate = exif2.getOrientation();
             }
