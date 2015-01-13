@@ -251,6 +251,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         Intent intent = new Intent();
         String title = GET_PICTURE;
         croppedUri = null;
+        fullUri = null;
         if (this.mediaType == PICTURE) {
             intent.setType("image/*");
             if (this.allowEdit) {
@@ -316,8 +317,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
           cropIntent.putExtra("aspectY", 1);
       }
       // create new file handle to get full resolution crop
-      croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
-      fullUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
+      croppedUri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + "/small.jpg"));
+      fullUri = picUri;
       cropIntent.putExtra("output", croppedUri);
       //HERE IS SOME 1
       // start the activity - we handle returning in onActivityResult
@@ -439,6 +440,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     }
                     exif.createOutFile(exifPath);
                     exif.writeExifData();
+                    exif2.createOutFile(exifPath);
+                    exif2.writeExifData();
                 }
                 if (this.allowEdit) {
                     performCrop(uri);
@@ -596,6 +599,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
         // // Send Uri back to JavaScript for viewing image
+        writeUncompressedImage(fullUri);
         JSONArray imageArray = new JSONArray();
         imageArray.put(fullUri.toString());
         imageArray.put(croppedUri.toString());
@@ -603,7 +607,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
-        
+        fullUri = null;
       }// If cancelled
       else if (resultCode == Activity.RESULT_CANCELED) {
         this.failPicture("Camera cancelled.");
