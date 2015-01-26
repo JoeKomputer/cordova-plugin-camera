@@ -596,8 +596,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
       if (resultCode == Activity.RESULT_OK) {
         Bitmap thumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(croppedUri.toString()), 100, 100);
         Uri thumbNailUri = getImageUri(this.cordova.getActivity().getApplicationContext(), thumbImage);
-
-        // // Send Uri back to JavaScript for viewing image
+        try {
         JSONObject image = new JSONObject();
         JSONObject thumbNail = new JSONObject();
         image.put("image",croppedUri.toString());
@@ -605,6 +604,13 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         JSONArray imageArray = new JSONArray();
         imageArray.put(image);
         imageArray.put(thumbNail);
+        } catch (JSONException e) {
+        //some exception handler code.
+        }  
+        
+
+        // // Send Uri back to JavaScript for viewing image
+       
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
