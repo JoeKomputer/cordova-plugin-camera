@@ -586,12 +586,14 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // if camera crop
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
-        Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(croppedUri), THUMBSIZE, THUMBSIZE);
+        Bitmap thumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(croppedUri), THUMBSIZE, THUMBSIZE);
+        Uri thumbNailUri = getImageUri(getApplicationContext(), thumbImage);
+
         // // Send Uri back to JavaScript for viewing image
         JSONObject image = new JSONObject();
         JSONObject thumbNail = new JSONObject();
         image.put("image",croppedUri.toString());
-        thumbNail.put("thumbNail",ThumbImage.toString());
+        thumbNail.put("thumbNail",thumbNailUri.toString());
         JSONArray imageArray = new JSONArray();
         imageArray.put(image);
         imageArray.put(thumbNail);
