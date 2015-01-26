@@ -588,7 +588,13 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
       if (resultCode == Activity.RESULT_OK) {
         Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(croppedUri), THUMBSIZE, THUMBSIZE);
         // // Send Uri back to JavaScript for viewing image
-        String[] imageArray = new String[] {croppedUri.toString(), ThumbImage.toString()};
+        JSONObject image = new JSONObject();
+        JSONObject thumbNail = new JSONObject();
+        image.put("image",croppedUri.toString());
+        thumbNail.put("thumbNail",ThumbImage.toString());
+        JSONArray imageArray = new JSONArray();
+        imageArray.put(image);
+        imageArray.put(thumbNail);
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
