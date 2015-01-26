@@ -594,6 +594,8 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // if camera crop
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
+        Bitmap rawPath = BitmapFactory.decodeFile(croppedUri.toString());
+        Log.e(LOG_TAG, "BITMAP OF THUMB=" + rawPath);
         Bitmap thumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(croppedUri.toString()), 100, 100);
         Log.e(LOG_TAG, "BITMAP OF THUMB=" + thumbImage);
         Uri thumbNailUri = getImageUri(this.cordova.getActivity().getApplicationContext(), thumbImage);
