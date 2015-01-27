@@ -594,7 +594,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // if camera crop
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
-        Bitmap thumbBitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
+        Bitmap thumbBitmap = android.provider.MediaStore.Images.Media.getBitmap(this.cordova.getActivity().getApplicationContext().getContentResolver(), croppedUri);
         Log.e(LOG_TAG, "BITMAP OF THUMB=" + thumbBitmap);
         Bitmap thumbImage = ThumbnailUtils.extractThumbnail(thumbBitmap, 100, 100);
         Log.e(LOG_TAG, "BITMAP OF THUMB=" + thumbImage);
