@@ -596,7 +596,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
       if (resultCode == Activity.RESULT_OK) {
         Uri thumbUri = intent.getData();
         Log.e(LOG_TAG, "BITMAP OF THUMB=" + thumbUri);
-        Bitmap thumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(thumbUri.toString(), 100, 100);
+        Bitmap thumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(thumbUri.toString()), 100, 100);
         Log.e(LOG_TAG, "BITMAP OF THUMB=" + thumbImage);
         Uri thumbNailUri = getImageUri(this.cordova.getActivity().getApplicationContext(), thumbImage);
         Log.e(LOG_TAG, "thumb URI HERE=" + thumbNailUri);
