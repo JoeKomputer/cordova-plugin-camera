@@ -46,6 +46,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
 import android.media.MediaScannerConnection;
+
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.os.Bundle;
@@ -595,7 +596,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
         Uri thumbUri = intent.getData();
-        Bitmap thumbBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), thumbUri);
+        Bitmap thumbBitmap = android.provider.MediaStore.Images.Media.getBitmap(this.cordova.getActivity().getApplicationContext().getContentResolver(), thumbUri);
         Log.e(LOG_TAG, "BITMAP OF THUMB=" + thumbBitmap);
         Bitmap thumbImage = ThumbnailUtils.extractThumbnail(thumbBitmap, 100, 100);
         Log.e(LOG_TAG, "BITMAP OF THUMB=" + thumbImage);
