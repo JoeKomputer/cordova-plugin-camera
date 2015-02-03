@@ -414,25 +414,27 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     uri = null;
                 }
             } else {
-                Bitmap thumbNailBitmap = null;
-                thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(imageUri.toString()));
-                if (thumbNailBitmap == null) {
-                    // Try to get the bitmap from intent.
-                    thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
-                }
-                
-                // Double-check the bitmap.
-                if (thumbNailBitmap == null) {
-                    Log.d(LOG_TAG, "I either have a null image path or bitmap");
-                    this.failPicture("Unable to create bitmap!");
-                    return;
-                }
+              if(returnThumbnail){
+                  Bitmap thumbNailBitmap = null;
+                  thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(imageUri.toString()));
+                  if (thumbNailBitmap == null) {
+                      // Try to get the bitmap from intent.
+                      thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
+                  }
+                  
+                  // Double-check the bitmap.
+                  if (thumbNailBitmap == null) {
+                      Log.d(LOG_TAG, "I either have a null image path or bitmap");
+                      this.failPicture("Unable to create bitmap!");
+                      return;
+                  }
 
-                if (rotate != 0 && this.correctOrientation) {
-                    thumbNailBitmap = getRotatedBitmap(rotate, thumbNailBitmap, exif);
-                }
+                  if (rotate != 0 && this.correctOrientation) {
+                      thumbNailBitmap = getRotatedBitmap(rotate, thumbNailBitmap, exif);
+                  }
 
-                imageThumbnail = returnProcessPicture(thumbNailBitmap);
+                  imageThumbnail = returnProcessPicture(thumbNailBitmap);
+              }
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
             }
 
