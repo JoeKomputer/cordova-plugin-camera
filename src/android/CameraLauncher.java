@@ -315,8 +315,8 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType of the image to be taken
      * @return a File object pointing to the temporary picture
      */
-    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) throws IOException {
-      try {
+    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) {
+    
         Bitmap thumbNailBitmap = null;
         thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(uri.toString()));
         if (thumbNailBitmap == null) {
@@ -334,11 +334,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         if (rotate != 0 && this.correctOrientation) {
             thumbNailBitmap = getRotatedBitmap(rotate, thumbNailBitmap, exif);
         }
-
         imageThumbnail = returnProcessPicture(thumbNailBitmap);
-      }catch (IOException e) {
-            e.printStackTrace();
-        }
     }
   /**
    * Brings up the UI to perform crop on passed image URI
@@ -543,7 +539,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      * @param destType          In which form should we return the image
      * @param intent            An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
      */
-    private void processResultFromGallery(int destType, Intent intent) {
+    private void processResultFromGallery(int destType, Intent intent) throws IOException {
         Uri uri = intent.getData();
         if (uri == null) {
             if (croppedUri != null) {
