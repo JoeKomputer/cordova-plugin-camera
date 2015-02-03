@@ -64,7 +64,7 @@ cameraExport.getPicture = function(successCallback, errorCallback, options) {
     var cameraDirection = getValue(options.cameraDirection, Camera.Direction.BACK);
 
     var args = [quality, destinationType, sourceType, targetWidth, targetHeight, thumbNailWidth, thumbNailHeight, encodingType,
-                mediaType, allowEdit, correctOrientation, saveToPhotoAlbum, popoverOptions, cameraDirection, returnThumbnail];
+                mediaType, allowEdit, correctOrientation, saveToPhotoAlbum, returnThumbnail, popoverOptions, cameraDirection];
                 console.log(args);
     exec(successCallback, errorCallback, "Camera", "takePicture", args);
     // XXX: commented out
