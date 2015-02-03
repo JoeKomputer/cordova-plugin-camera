@@ -316,6 +316,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @return a File object pointing to the temporary picture
      */
     private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) throws IOException {
+      try {
         Bitmap thumbNailBitmap = null;
         thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(uri.toString()));
         if (thumbNailBitmap == null) {
@@ -335,6 +336,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         imageThumbnail = returnProcessPicture(thumbNailBitmap);
+      }catch (IOException e) {
+            e.printStackTrace();
+        }
     }
   /**
    * Brings up the UI to perform crop on passed image URI
