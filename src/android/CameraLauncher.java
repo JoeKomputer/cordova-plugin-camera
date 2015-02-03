@@ -594,11 +594,26 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // if camera crop
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
-        Bitmap thumbImage = (Bitmap) intent.getExtras().get("data");
-        Uri thumbNailUri = getImageUri(this.cordova.getActivity().getApplicationContext(), thumbImage);
+        Bitmap bitmap = null;
+        bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
+        if (bitmap == null) {
+            // Try to get the bitmap from intent.
+            bitmap = (Bitmap)intent.getExtras().get("data");
+        }
+        // Double-check the bitmap.
+        if (bitmap == null) {
+            Log.d(LOG_TAG, "I either have a null image path or bitmap");
+            this.failPicture("Unable to create bitmap!");
+            return;
+        }
+        if (rotate != 0 && this.correctOrientation) {
+            bitmap = getRotatedBitmap(rotate, bitmap, exif);
+        }
+        String thumbnailImage = returnProccessPicture(bitmap);
+        checkForDuplicateImage(DATA_URL);
         JSONArray imageArray = new JSONArray();
         imageArray.put(croppedUri.toString());
-        imageArray.put(thumbNailUri.toString());
+        imageArray.put(thumbnailImage);
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
@@ -950,7 +965,26 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         }
         jpeg_data = null;
     }
-
+/**
+     * Create entry in media store for image
+     *
+     * @return uri
+     */
+    private String returnProccessPicture(Bitmap bitmap) {
+         ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
+        try {
+            if (bitmap.compress(CompressFormat.JPEG, mQuality, jpeg_data)) {
+                byte[] code = jpeg_data.toByteArray();
+                byte[] output = Base64.encode(code, Base64.NO_WRAP);
+                String js_out = new String(output);
+                output = null;
+                code = null;
+            }
+        } catch (Exception e) {
+            this.failPicture("Error compressing image.");
+        }
+        return js_out;
+    }
     /**
      * Send error message to JavaScript.
      *
