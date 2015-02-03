@@ -315,7 +315,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType of the image to be taken
      * @return a File object pointing to the temporary picture
      */
-    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) {
+    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) throws IOException {
         Bitmap thumbNailBitmap = null;
         thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(uri.toString()));
         if (thumbNailBitmap == null) {
