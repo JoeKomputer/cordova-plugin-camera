@@ -315,7 +315,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType of the image to be taken
      * @return a File object pointing to the temporary picture
      */
-    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) {
+    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) throws IOException {
     
         Bitmap thumbNailBitmap = null;
         thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(uri.toString()));
@@ -666,7 +666,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      * @param resultCode        The integer result code returned by the child activity through its setResult().
      * @param intent            An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
      */
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) throws IOException {
 
         // Get src and dest types from request code
         int srcType = (requestCode / 16) - 1;
