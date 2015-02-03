@@ -975,7 +975,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      */
     private String returnProccessPicture(Bitmap bitmap) {
          ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
-         String js_out;
+         String js_out = null;
         try {
             if (bitmap.compress(CompressFormat.JPEG, mQuality, jpeg_data)) {
                 byte[] code = jpeg_data.toByteArray();
@@ -986,6 +986,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
             }
         } catch (Exception e) {
             this.failPicture("Error compressing image.");
+            return null;
         }
         return js_out;
     }
