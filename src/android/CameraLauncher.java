@@ -398,7 +398,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
             } else {
                 Bitmap thumbNailBitmap = null;
-                thumbNailBitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
+                thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(imageUri.toString()));
                 if (thumbNailBitmap == null) {
                     // Try to get the bitmap from intent.
                     thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
@@ -805,7 +805,39 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
 
         return Bitmap.createScaledBitmap(unscaledBitmap, widthHeight[0], widthHeight[1], true);
     }
+ /**
+     * Return a scaled bitmap based on the target width and height
+     *
+     * @param imagePath
+     * @return
+     * @throws IOException 
+     */
+    private Bitmap resizeThumbnail(String imageUrl) throws IOException {
 
+        // figure out the original width and height of the image
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(FileHelper.getInputStreamFromUriString(imageUrl, cordova), null, options);
+        
+        //CB-2292: WTF? Why is the width null?
+        if(options.outWidth == 0 || options.outHeight == 0)
+        {
+            return null;
+        }
+        
+        // determine the correct aspect ratio
+        int[] widthHeight = calculateAspectRatio(options.outWidth, options.outHeight);
+
+        // Load in the smallest bitmap possible that is closest to the size we want
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = calculateSampleSize(options.outWidth, options.outHeight, 75, 75);
+        Bitmap unscaledBitmap = BitmapFactory.decodeStream(FileHelper.getInputStreamFromUriString(imageUrl, cordova), null, options);
+        if (unscaledBitmap == null) {
+            return null;
+        }
+
+        return Bitmap.createScaledBitmap(unscaledBitmap, widthHeight[0], widthHeight[1], true);
+    }
     /**
      * Maintain the aspect ratio so the resulting image does not look smooshed
      *
