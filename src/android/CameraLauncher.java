@@ -397,24 +397,25 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     uri = null;
                 }
             } else {
-                bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
-                if (bitmap == null) {
+                Bitmap thumbNailBitmap = null;
+                thumbNailBitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
+                if (thumbNailBitmap == null) {
                     // Try to get the bitmap from intent.
-                    bitmap = (Bitmap)intent.getExtras().get("data");
+                    thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
                 }
                 
                 // Double-check the bitmap.
-                if (bitmap == null) {
+                if (thumbNailBitmap == null) {
                     Log.d(LOG_TAG, "I either have a null image path or bitmap");
                     this.failPicture("Unable to create bitmap!");
                     return;
                 }
 
                 if (rotate != 0 && this.correctOrientation) {
-                    bitmap = getRotatedBitmap(rotate, bitmap, exif);
+                    thumbNailBitmap = getRotatedBitmap(rotate, thumbNailBitmap, exif);
                 }
 
-                imageThumbnail = returnProcessPicture(bitmap);
+                imageThumbnail = returnProcessPicture(thumbNailBitmap);
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
             }
 
