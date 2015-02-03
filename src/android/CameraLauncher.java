@@ -315,7 +315,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType of the image to be taken
      * @return a File object pointing to the temporary picture
      */
-    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif) {
+    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) {
         Bitmap thumbNailBitmap = null;
         thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(uri.toString()));
         if (thumbNailBitmap == null) {
@@ -439,7 +439,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
             } else {
               if(returnThumbnail){
-                createThumbNailBitmap(imageUri, rotate, exif);
+                createThumbNailBitmap(imageUri, rotate, exif, intent);
               }
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
             }
@@ -550,7 +550,8 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
             }
         }
         int rotate = 0;
-        createThumbNailBitmap(uri, rotate);
+        ExifHelper exif = new ExifHelper();
+        createThumbNailBitmap(uri, rotate, exif, intent);
         // If you ask for video or all media type you will automatically get back a file URI
         // and there will be no attempt to resize any returned data
         if (this.mediaType != PICTURE) {
