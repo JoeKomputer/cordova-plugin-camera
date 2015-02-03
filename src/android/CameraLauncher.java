@@ -141,7 +141,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             this.correctOrientation = args.getBoolean(10);
             this.saveToPhotoAlbum = args.getBoolean(11);
             this.returnThumbnail = args.getBoolean(12);
-
+            Log.e(LOG_TAG, "widh and height = " + this.thumbNailHeight, this.thumbNailWidth);
             // If the user specifies a 0 or smaller width/height
             // make it -1 so later comparisons succeed
             if (this.targetWidth < 1) {
@@ -223,7 +223,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     public void takePicture(int returnType, int encodingType) {
         // Save the number of images currently on disk for later
         this.numPics = queryImgDB(whichContentStore()).getCount();
-
+        Log.e(LOG_TAG, "taking picture");
         // Display camera
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
 
