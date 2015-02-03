@@ -99,6 +99,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private MediaScannerConnection conn;    // Used to update gallery app with newly-written files
     private Uri scanMe;                     // Uri of image to be added to content store
     private Uri croppedUri;
+    private String imageThumbnail;
 
     /**
      * Executes the request and returns PluginResult.
@@ -396,6 +397,25 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     uri = null;
                 }
             } else {
+                bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
+                if (bitmap == null) {
+                    // Try to get the bitmap from intent.
+                    bitmap = (Bitmap)intent.getExtras().get("data");
+                }
+                
+                // Double-check the bitmap.
+                if (bitmap == null) {
+                    Log.d(LOG_TAG, "I either have a null image path or bitmap");
+                    this.failPicture("Unable to create bitmap!");
+                    return;
+                }
+
+                if (rotate != 0 && this.correctOrientation) {
+                    bitmap = getRotatedBitmap(rotate, bitmap, exif);
+                }
+
+                imageThumbnail = returnProccessPicture(bitmap);
+                checkForDuplicateImage(DATA_URL);
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
             }
 
@@ -594,23 +614,9 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // if camera crop
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
-        Bitmap bitmap = null;
-        bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
-        if (bitmap == null) {
-            // Try to get the bitmap from intent.
-            bitmap = (Bitmap)intent.getExtras().get("data");
-        }
-        // Double-check the bitmap.
-        if (bitmap == null) {
-            Log.d(LOG_TAG, "I either have a null image path or bitmap");
-            this.failPicture("Unable to create bitmap!");
-            return;
-        }
-        String thumbnailImage = returnProccessPicture(bitmap);
-        checkForDuplicateImage(DATA_URL);
         JSONArray imageArray = new JSONArray();
         imageArray.put(croppedUri.toString());
-        imageArray.put(thumbnailImage);
+        imageArray.put(imageThumbnail);
         this.callbackContext
             .success(imageArray);
         croppedUri = null;
