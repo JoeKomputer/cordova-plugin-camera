@@ -414,8 +414,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     bitmap = getRotatedBitmap(rotate, bitmap, exif);
                 }
 
-                imageThumbnail = returnProccessPicture(bitmap);
-                checkForDuplicateImage(DATA_URL);
+                imageThumbnail = returnProcessPicture(bitmap);
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
             }
 
@@ -457,7 +456,10 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     performCrop(uri);
                 } else {
                     // Send Uri back to JavaScript for viewing image
-                    this.callbackContext.success(uri.toString());
+                  JSONArray imageArray = new JSONArray();
+                  imageArray.put(uri.toString());
+                  imageArray.put(imageThumbnail);
+                  this.callbackContext.success(imageArray);
                 }
             }
         } else {
@@ -973,7 +975,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      *
      * @return uri
      */
-    private String returnProccessPicture(Bitmap bitmap) {
+    private String returnProcessPicture(Bitmap bitmap) {
          ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
          String js_out = null;
         try {
