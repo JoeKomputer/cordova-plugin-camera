@@ -666,7 +666,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      * @param resultCode        The integer result code returned by the child activity through its setResult().
      * @param intent            An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
      */
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) throws IOException {
+    public void onActivityResult(int requestCode, int resultCode, Intent intent)  {
 
         // Get src and dest types from request code
         int srcType = (requestCode / 16) - 1;
