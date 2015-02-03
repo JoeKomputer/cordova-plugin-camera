@@ -85,10 +85,13 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private int mQuality;                   // Compression quality hint (0-100: 0=low quality & high compression, 100=compress of max quality)
     private int targetWidth;                // desired width of the image
     private int targetHeight;               // desired height of the image
+    private int thumbNailWidth;             // desired width of the thumb nail
+    private int thumbNailHeight;            // desired height of the thumb nail
     private Uri imageUri;                   // Uri of captured image
     private int encodingType;               // Type of encoding to use
     private int mediaType;                  // What type of media to retrieve
     private boolean saveToPhotoAlbum;       // Should the picture be saved to the device's photo album
+    private boolean returnThumbnail;        // Should the picture also generate thumbnail
     private boolean correctOrientation;     // Should the pictures orientation be corrected
     private boolean orientationCorrected;   // Has the picture's orientation been corrected
     private boolean allowEdit;              // Should we allow the user to crop the image.
@@ -116,8 +119,11 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             int srcType = CAMERA;
             int destType = FILE_URI;
             this.saveToPhotoAlbum = false;
+            this.returnThumbnail = false;
             this.targetHeight = 0;
             this.targetWidth = 0;
+            this.thumbNailHeight = 0;
+            this.thumbNailWidth = 0;
             this.encodingType = JPEG;
             this.mediaType = PICTURE;
             this.mQuality = 80;
@@ -127,11 +133,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             srcType = args.getInt(2);
             this.targetWidth = args.getInt(3);
             this.targetHeight = args.getInt(4);
-            this.encodingType = args.getInt(5);
-            this.mediaType = args.getInt(6);
-            this.allowEdit = args.getBoolean(7);
-            this.correctOrientation = args.getBoolean(8);
-            this.saveToPhotoAlbum = args.getBoolean(9);
+            this.thumbNailWidth = args.getInt(5);
+            this.thumbNailHeight = args.getInt(6);
+            this.encodingType = args.getInt(7);
+            this.mediaType = args.getInt(8);
+            this.allowEdit = args.getBoolean(9);
+            this.correctOrientation = args.getBoolean(10);
+            this.saveToPhotoAlbum = args.getBoolean(11);
+            this.returnThumbnail = args.getBoolean(12);
 
             // If the user specifies a 0 or smaller width/height
             // make it -1 so later comparisons succeed
@@ -141,7 +150,15 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             if (this.targetHeight < 1) {
                 this.targetHeight = -1;
             }
-
+            //if not set defines thumbnail height and width
+            if(returnThumbnail){
+                if (this.thumbNailWidth < 1) {
+                    this.thumbNailWidth = 45;
+                }
+                if (this.thumbNailHeight < 1) {
+                    this.thumbNailHeight = 75;
+                }
+            }
              try {
                 if (srcType == CAMERA) {
                     this.takePicture(destType, encodingType);
@@ -428,10 +445,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             if (this.targetHeight == -1 && this.targetWidth == -1 && this.mQuality == 100 && 
                     !this.correctOrientation) {
                 writeUncompressedImage(uri);
+              if(returnThumbnail){
                 JSONArray imageArray = new JSONArray();
-                  imageArray.put(uri.toString());
-                  imageArray.put(imageThumbnail);
+                imageArray.put(uri.toString());
+                imageArray.put(imageThumbnail);
                 this.callbackContext.success(imageArray);
+              }else{
+                this.callbackContext.success(uri.toString());
+              }
             } else {
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
 
@@ -459,10 +480,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     performCrop(uri);
                 } else {
                     // Send Uri back to JavaScript for viewing image
-                  JSONArray imageArray = new JSONArray();
-                  imageArray.put(uri.toString());
-                  imageArray.put(imageThumbnail);
-                  this.callbackContext.success(imageArray);
+                  if(returnThumbnail){
+                    JSONArray imageArray = new JSONArray();
+                    imageArray.put(uri.toString());
+                    imageArray.put(imageThumbnail);
+                    this.callbackContext.success(imageArray);
+                  }else{
+                    this.callbackContext.success(uri.toString());
+                  }
                 }
             }
         } else {
@@ -619,13 +644,16 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         // if camera crop
     if (requestCode == CROP_CAMERA) {
       if (resultCode == Activity.RESULT_OK) {
-        JSONArray imageArray = new JSONArray();
-        imageArray.put(croppedUri.toString());
-        imageArray.put(imageThumbnail);
-        this.callbackContext
-            .success(imageArray);
+        if(returnThumbnail){
+            JSONArray imageArray = new JSONArray();
+            imageArray.put(uri.toString());
+            imageArray.put(imageThumbnail);
+            this.callbackContext.success(imageArray);
+          }else{
+            this.callbackContext.success(croppedUri.toString());
+          }
         croppedUri = null;
-        
+
       }// If cancelled
       else if (resultCode == Activity.RESULT_CANCELED) {
         this.failPicture("Camera cancelled.");
@@ -793,7 +821,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         }
         
         // determine the correct aspect ratio
-        int[] widthHeight = calculateAspectRatio(options.outWidth, options.outHeight);
+        int[] widthHeight = calculateAspectRatio(options.outWidth, options.outHeight, this.targetWidth, this.targetHeight);
 
         // Load in the smallest bitmap possible that is closest to the size we want
         options.inJustDecodeBounds = false;
@@ -826,11 +854,11 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         }
         
         // determine the correct aspect ratio
-        int[] widthHeight = calculateAspectRatio(85, 85);
+        int[] widthHeight = calculateAspectRatio(options.outWidth, options.outHeight, this.thumbNailWidth, this.thumbNailHeight);
 
         // Load in the smallest bitmap possible that is closest to the size we want
         options.inJustDecodeBounds = false;
-        options.inSampleSize = calculateSampleSize(options.outWidth, options.outHeight, 85, 85);
+        options.inSampleSize = calculateSampleSize(options.outWidth, options.outHeight, this.thumbNailWidth, this.thumbNailHeight);
         Bitmap unscaledBitmap = BitmapFactory.decodeStream(FileHelper.getInputStreamFromUriString(imageUrl, cordova), null, options);
         if (unscaledBitmap == null) {
             return null;
@@ -845,10 +873,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      * @param origHeight
      * @return
      */
-    public int[] calculateAspectRatio(int origWidth, int origHeight) {
-        int newWidth = this.targetWidth;
-        int newHeight = this.targetHeight;
-
+    public int[] calculateAspectRatio(int origWidth, int origHeight, int newWidth, int newHeight) {
         // If no new width or height were specified return the original bitmap
         if (newWidth <= 0 && newHeight <= 0) {
             newWidth = origWidth;
