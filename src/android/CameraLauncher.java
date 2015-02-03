@@ -826,11 +826,11 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
         }
         
         // determine the correct aspect ratio
-        int[] widthHeight = calculateAspectRatio(options.outWidth, options.outHeight);
+        int[] widthHeight = calculateAspectRatio(85, 85);
 
         // Load in the smallest bitmap possible that is closest to the size we want
         options.inJustDecodeBounds = false;
-        options.inSampleSize = calculateSampleSize(options.outWidth, options.outHeight, 75, 75);
+        options.inSampleSize = calculateSampleSize(options.outWidth, options.outHeight, 85, 85);
         Bitmap unscaledBitmap = BitmapFactory.decodeStream(FileHelper.getInputStreamFromUriString(imageUrl, cordova), null, options);
         if (unscaledBitmap == null) {
             return null;
