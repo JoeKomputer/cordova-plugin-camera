@@ -428,8 +428,10 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
             if (this.targetHeight == -1 && this.targetWidth == -1 && this.mQuality == 100 && 
                     !this.correctOrientation) {
                 writeUncompressedImage(uri);
-
-                this.callbackContext.success(uri.toString());
+                JSONArray imageArray = new JSONArray();
+                  imageArray.put(uri.toString());
+                  imageArray.put(imageThumbnail);
+                this.callbackContext.success(imageArray);
             } else {
                 bitmap = getScaledBitmap(FileHelper.stripFileProtocol(imageUri.toString()));
 
