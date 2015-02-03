@@ -315,10 +315,13 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType of the image to be taken
      * @return a File object pointing to the temporary picture
      */
-    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) throws IOException {
-    
+    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif, Intent intent) {
+      try {
         Bitmap thumbNailBitmap = null;
         thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(uri.toString()));
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
         if (thumbNailBitmap == null) {
             // Try to get the bitmap from intent.
             thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
@@ -334,7 +337,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         if (rotate != 0 && this.correctOrientation) {
             thumbNailBitmap = getRotatedBitmap(rotate, thumbNailBitmap, exif);
         }
+
         imageThumbnail = returnProcessPicture(thumbNailBitmap);
+      
     }
   /**
    * Brings up the UI to perform crop on passed image URI
@@ -539,7 +544,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      * @param destType          In which form should we return the image
      * @param intent            An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
      */
-    private void processResultFromGallery(int destType, Intent intent) throws IOException {
+    private void processResultFromGallery(int destType, Intent intent) {
         Uri uri = intent.getData();
         if (uri == null) {
             if (croppedUri != null) {
@@ -666,7 +671,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      * @param resultCode        The integer result code returned by the child activity through its setResult().
      * @param intent            An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
      */
-    public void onActivityResult(int requestCode, int resultCode, Intent intent)  {
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         // Get src and dest types from request code
         int srcType = (requestCode / 16) - 1;
