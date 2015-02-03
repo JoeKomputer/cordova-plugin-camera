@@ -309,7 +309,33 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     new String(title)), (srcType + 1) * 16 + returnType + 1);
         }
     }
+/**
+     * Create a file in the applications temporary directory based upon the supplied encoding.
+     *
+     * @param encodingType of the image to be taken
+     * @return a File object pointing to the temporary picture
+     */
+    private void createThumbNailBitmap(Uri uri, int rotate, ExifHelper exif) {
+        Bitmap thumbNailBitmap = null;
+        thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(uri.toString()));
+        if (thumbNailBitmap == null) {
+            // Try to get the bitmap from intent.
+            thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
+        }
+        
+        // Double-check the bitmap.
+        if (thumbNailBitmap == null) {
+            Log.d(LOG_TAG, "I either have a null image path or bitmap");
+            this.failPicture("Unable to create bitmap!");
+            return;
+        }
 
+        if (rotate != 0 && this.correctOrientation) {
+            thumbNailBitmap = getRotatedBitmap(rotate, thumbNailBitmap, exif);
+        }
+
+        imageThumbnail = returnProcessPicture(thumbNailBitmap);
+    }
   /**
    * Brings up the UI to perform crop on passed image URI
    * 
@@ -413,25 +439,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
             } else {
               if(returnThumbnail){
-                  Bitmap thumbNailBitmap = null;
-                  thumbNailBitmap = resizeThumbnail(FileHelper.stripFileProtocol(imageUri.toString()));
-                  if (thumbNailBitmap == null) {
-                      // Try to get the bitmap from intent.
-                      thumbNailBitmap = (Bitmap)intent.getExtras().get("data");
-                  }
-                  
-                  // Double-check the bitmap.
-                  if (thumbNailBitmap == null) {
-                      Log.d(LOG_TAG, "I either have a null image path or bitmap");
-                      this.failPicture("Unable to create bitmap!");
-                      return;
-                  }
-
-                  if (rotate != 0 && this.correctOrientation) {
-                      thumbNailBitmap = getRotatedBitmap(rotate, thumbNailBitmap, exif);
-                  }
-
-                  imageThumbnail = returnProcessPicture(thumbNailBitmap);
+                createThumbNailBitmap(imageUri, rotate, exif);
               }
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
             }
@@ -542,7 +550,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
             }
         }
         int rotate = 0;
-
+        createThumbNailBitmap(uri, rotate);
         // If you ask for video or all media type you will automatically get back a file URI
         // and there will be no attempt to resize any returned data
         if (this.mediaType != PICTURE) {
@@ -553,7 +561,14 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
             // rotating, nor compressing needs to be done
             if (this.targetHeight == -1 && this.targetWidth == -1 &&
                     (destType == FILE_URI || destType == NATIVE_URI) && !this.correctOrientation) {
+              if(returnThumbnail){
+                JSONArray imageArray = new JSONArray();
+                imageArray.put(uri.toString());
+                imageArray.put(imageThumbnail);
+                this.callbackContext.success(imageArray);
+              }else{
                 this.callbackContext.success(uri.toString());
+              }
             } else {
                 String uriString = uri.toString();
                 // Get the path to the image. Makes loading so much easier.
@@ -604,14 +619,28 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
                             String modifiedPath = this.ouputModifiedBitmap(bitmap, uri);
                             // The modified image is cached by the app in order to get around this and not have to delete you
                             // application cache I'm adding the current system time to the end of the file url.
-                            this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis());
+                            if(returnThumbnail){
+                            JSONArray imageArray = new JSONArray();
+                            imageArray.put("file://" + modifiedPath + "?" + System.currentTimeMillis());
+                            imageArray.put(imageThumbnail);
+                            this.callbackContext.success(imageArray);
+                            }else{
+                              this.callbackContext.success("file://" + modifiedPath + "?" + System.currentTimeMillis());
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                             this.failPicture("Error retrieving image.");
                         }
                     }
                     else {
-                        this.callbackContext.success(uri.toString());
+                      if(returnThumbnail){
+                            JSONArray imageArray = new JSONArray();
+                            imageArray.put(uri.toString());
+                            imageArray.put(imageThumbnail);
+                            this.callbackContext.success(imageArray);
+                            }else{
+                               this.callbackContext.success(uri.toString());
+                            }
                     }
                 }
                 if (bitmap != null) {
