@@ -606,9 +606,6 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
             this.failPicture("Unable to create bitmap!");
             return;
         }
-        if (rotate != 0 && this.correctOrientation) {
-            bitmap = getRotatedBitmap(rotate, bitmap, exif);
-        }
         String thumbnailImage = returnProccessPicture(bitmap);
         checkForDuplicateImage(DATA_URL);
         JSONArray imageArray = new JSONArray();
@@ -972,11 +969,12 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
      */
     private String returnProccessPicture(Bitmap bitmap) {
          ByteArrayOutputStream jpeg_data = new ByteArrayOutputStream();
+         String js_out;
         try {
             if (bitmap.compress(CompressFormat.JPEG, mQuality, jpeg_data)) {
                 byte[] code = jpeg_data.toByteArray();
                 byte[] output = Base64.encode(code, Base64.NO_WRAP);
-                String js_out = new String(output);
+                js_out = new String(output);
                 output = null;
                 code = null;
             }
