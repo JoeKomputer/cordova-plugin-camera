@@ -646,7 +646,7 @@ private String ouputModifiedBitmap(Bitmap bitmap, Uri uri) throws IOException {
       if (resultCode == Activity.RESULT_OK) {
         if(returnThumbnail){
             JSONArray imageArray = new JSONArray();
-            imageArray.put(uri.toString());
+            imageArray.put(croppedUri.toString());
             imageArray.put(imageThumbnail);
             this.callbackContext.success(imageArray);
           }else{
