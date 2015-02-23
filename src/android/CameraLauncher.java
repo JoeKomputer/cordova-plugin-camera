@@ -433,6 +433,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         // If sending filename back
         else if (destType == FILE_URI || destType == NATIVE_URI) {
+          if(returnThumbnail){
+                createThumbNailBitmap(imageUri, rotate, exif, intent);
+              }
             if (this.saveToPhotoAlbum) {
                 Uri inputUri = getUriFromMediaStore();
                 try {
@@ -442,9 +445,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     uri = null;
                 }
             } else {
-              if(returnThumbnail){
-                createThumbNailBitmap(imageUri, rotate, exif, intent);
-              }
                 uri = Uri.fromFile(new File(getTempDirectoryPath(), System.currentTimeMillis() + ".jpg"));
             }
 
