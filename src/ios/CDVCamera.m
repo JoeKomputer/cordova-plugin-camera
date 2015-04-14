@@ -52,14 +52,20 @@ static NSSet* org_apache_cordova_validArrowDirections;
     if ((targetWidth != nil) && (targetHeight != nil)) {
         pictureOptions.targetSize = CGSizeMake([targetWidth floatValue], [targetHeight floatValue]);
     }
-
-    pictureOptions.encodingType = [[arguments objectAtIndex:5 withDefault:@(EncodingTypeJPEG)] unsignedIntegerValue];
-    pictureOptions.mediaType = [[arguments objectAtIndex:6 withDefault:@(MediaTypePicture)] unsignedIntegerValue];
-    pictureOptions.allowsEditing = [[arguments objectAtIndex:7 withDefault:@(NO)] boolValue];
-    pictureOptions.correctOrientation = [[arguments objectAtIndex:8 withDefault:@(NO)] boolValue];
-    pictureOptions.saveToPhotoAlbum = [[arguments objectAtIndex:9 withDefault:@(NO)] boolValue];
-    pictureOptions.popoverOptions = [arguments objectAtIndex:10 withDefault:nil];
-    pictureOptions.cameraDirection = [[arguments objectAtIndex:11 withDefault:@(UIImagePickerControllerCameraDeviceRear)] unsignedIntegerValue];
+    NSNumber* thumbNailWidth = [arguments objectAtIndex:5 withDefault:nil];
+    NSNumber* thumbNailHeight = [arguments objectAtIndex:6 withDefault:nil];
+    pictureOptions.targetSize = CGSizeMake(0, 0);
+    if ((thumbNailWidth != nil) && (thumbNailHeight != nil)) {
+        pictureOptions.thumbNailSize = CGSizeMake([thumbNailWidth floatValue], [thumbNailHeight floatValue]);
+    }
+    pictureOptions.encodingType = [[arguments objectAtIndex:7 withDefault:@(EncodingTypeJPEG)] unsignedIntegerValue];
+    pictureOptions.mediaType = [[arguments objectAtIndex:8 withDefault:@(MediaTypePicture)] unsignedIntegerValue];
+    pictureOptions.allowsEditing = [[arguments objectAtIndex:9 withDefault:@(NO)] boolValue];
+    pictureOptions.correctOrientation = [[arguments objectAtIndex:10 withDefault:@(NO)] boolValue];
+    pictureOptions.saveToPhotoAlbum = [[arguments objectAtIndex:11 withDefault:@(NO)] boolValue];
+    pictureOptions.returnThumbnail = [[arguments objectAtIndex:12 withDefault:@(YES)] boolValue];
+    pictureOptions.popoverOptions = [arguments objectAtIndex:13 withDefault:nil];
+    pictureOptions.cameraDirection = [[arguments objectAtIndex:14 withDefault:@(UIImagePickerControllerCameraDeviceRear)] unsignedIntegerValue];
     
     pictureOptions.popoverSupported = NO;
     pictureOptions.usesGeolocation = NO;
@@ -345,12 +351,35 @@ static NSSet* org_apache_cordova_validArrowDirections;
     
     return (scaledImage == nil ? image : scaledImage);
 }
+- (UIImage*)retrieveThumbnail:(NSDictionary*)info options:(CDVPictureOptions*)options
+{
+    // get the image
+    UIImage* image = nil;
+    if (options.allowsEditing && [info objectForKey:UIImagePickerControllerEditedImage]) {
+        image = [info objectForKey:UIImagePickerControllerEditedImage];
+    } else {
+        image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    }
+    
+    if (options.correctOrientation) {
+        image = [image imageCorrectedForCaptureOrientation];
+    }
+    
+    UIImage* scaledImage = nil;
+    
+    if ((options.thumbNailSize.width > 0) && (options.thumbNailSize.height > 0)) {
+        scaledImage = [image imageByScalingAndCroppingForSize:options.thumbNailSize];
+    }
+    
+    return (scaledImage == nil ? image : scaledImage);
+}
 
 - (CDVPluginResult*)resultForImage:(CDVPictureOptions*)options info:(NSDictionary*)info
 {
     CDVPluginResult* result = nil;
     BOOL saveToPhotoAlbum = options.saveToPhotoAlbum;
     UIImage* image = nil;
+    UIImage* thumbNail = nil;
 
     switch (options.destinationType) {
         case DestinationTypeNativeUri:
@@ -364,6 +393,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
         case DestinationTypeFileUri:
         {
             image = [self retrieveImage:info options:options];
+            thumbNail = [self retrieveThumbnail:info options:options];
             NSData* data = [self processImage:image info:info options:options];
             if (data) {
                 
@@ -383,6 +413,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
         case DestinationTypeDataUrl:
         {
             image = [self retrieveImage:info options:options];
+            thumbNail = [self retrieveThumbnail:info options:options];
             NSData* data = [self processImage:image info:info options:options];
             
             if (data)  {
