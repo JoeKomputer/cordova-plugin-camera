@@ -6,9 +6,9 @@
  to you under the Apache License, Version 2.0 (the
  "License"); you may not use this file except in compliance
  with the License.  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing,
  software distributed under the License is distributed on an
  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -48,9 +48,11 @@ typedef NSUInteger CDVMediaType;
 @property (assign) CDVDestinationType destinationType;
 @property (assign) UIImagePickerControllerSourceType sourceType;
 @property (assign) CGSize targetSize;
+@property (assign) CGSize thumbNailSize;
 @property (assign) CDVEncodingType encodingType;
 @property (assign) CDVMediaType mediaType;
 @property (assign) BOOL allowsEditing;
+@property (assign) BOOL returnThumbnail;
 @property (assign) BOOL correctOrientation;
 @property (assign) BOOL saveToPhotoAlbum;
 @property (strong) NSDictionary* popoverOptions;
@@ -81,9 +83,9 @@ typedef NSUInteger CDVMediaType;
 // ======================================================================= //
 
 @interface CDVCamera : CDVPlugin <UIImagePickerControllerDelegate,
-                       UINavigationControllerDelegate,
-                       UIPopoverControllerDelegate,
-                       CLLocationManagerDelegate>
+UINavigationControllerDelegate,
+UIPopoverControllerDelegate,
+CLLocationManagerDelegate>
 {}
 
 @property (strong) CDVCameraPicker* pickerController;

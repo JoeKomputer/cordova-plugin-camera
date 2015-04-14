@@ -6,9 +6,9 @@
  to you under the Apache License, Version 2.0 (the
  "License"); you may not use this file except in compliance
  with the License.  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing,
  software distributed under the License is distributed on an
  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -41,7 +41,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
 + (instancetype) createFromTakePictureArguments:(NSArray*)arguments
 {
     CDVPictureOptions* pictureOptions = [[CDVPictureOptions alloc] init];
-
+    
     pictureOptions.quality = [arguments objectAtIndex:0 withDefault:@(50)];
     pictureOptions.destinationType = [[arguments objectAtIndex:1 withDefault:@(DestinationTypeFileUri)] unsignedIntegerValue];
     pictureOptions.sourceType = [[arguments objectAtIndex:2 withDefault:@(UIImagePickerControllerSourceTypeCamera)] unsignedIntegerValue];
@@ -54,7 +54,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
     }
     NSNumber* thumbNailWidth = [arguments objectAtIndex:5 withDefault:nil];
     NSNumber* thumbNailHeight = [arguments objectAtIndex:6 withDefault:nil];
-    pictureOptions.targetSize = CGSizeMake(0, 0);
+    pictureOptions.thumbNailSize = CGSizeMake(0, 0);
     if ((thumbNailWidth != nil) && (thumbNailHeight != nil)) {
         pictureOptions.thumbNailSize = CGSizeMake([thumbNailWidth floatValue], [thumbNailHeight floatValue]);
     }
@@ -118,7 +118,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
 - (BOOL)popoverSupported
 {
     return (NSClassFromString(@"UIPopoverController") != nil) &&
-           (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad);
+    (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad);
 }
 
 - (void)takePicture:(CDVInvokedUrlCommand*)command
@@ -126,7 +126,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
     self.hasPendingOperation = YES;
     
     __weak CDVCamera* weakSelf = self;
-
+    
     [self.commandDelegate runInBackground:^{
         
         CDVPictureOptions* pictureOptions = [CDVPictureOptions createFromTakePictureArguments:command.arguments];
@@ -163,7 +163,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
             }
             [weakSelf displayPopover:pictureOptions.popoverOptions];
             weakSelf.hasPendingOperation = NO;
-
+            
         } else {
             [weakSelf.viewController presentViewController:cameraPicker animated:YES completion:^{
                 weakSelf.hasPendingOperation = NO;
@@ -175,7 +175,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
 - (void)repositionPopover:(CDVInvokedUrlCommand*)command
 {
     NSDictionary* options = [command.arguments objectAtIndex:0 withDefault:nil];
-
+    
     [self displayPopover:options];
 }
 
@@ -186,7 +186,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
     NSInteger width = 320;
     NSInteger height = 480;
     UIPopoverArrowDirection arrowDirection = UIPopoverArrowDirectionAny;
-
+    
     if (options) {
         x = [options integerValueForKey:@"x" defaultValue:0];
         y = [options integerValueForKey:@"y" defaultValue:32];
@@ -197,12 +197,12 @@ static NSSet* org_apache_cordova_validArrowDirections;
             arrowDirection = UIPopoverArrowDirectionAny;
         }
     }
-
+    
     [[[self pickerController] pickerPopoverController] setDelegate:self];
     [[[self pickerController] pickerPopoverController] presentPopoverFromRect:CGRectMake(x, y, width, height)
-                                                                 inView:[self.webView superview]
-                                               permittedArrowDirections:arrowDirection
-                                                               animated:YES];
+                                                                       inView:[self.webView superview]
+                                                     permittedArrowDirections:arrowDirection
+                                                                     animated:YES];
 }
 
 - (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -222,13 +222,13 @@ static NSSet* org_apache_cordova_validArrowDirections;
     NSFileManager* fileMgr = [[NSFileManager alloc] init];
     NSError* err = nil;
     BOOL hasErrors = NO;
-
+    
     // clear contents of NSTemporaryDirectory
     NSString* tempDirectoryPath = NSTemporaryDirectory();
     NSDirectoryEnumerator* directoryEnumerator = [fileMgr enumeratorAtPath:tempDirectoryPath];
     NSString* fileName = nil;
     BOOL result;
-
+    
     while ((fileName = [directoryEnumerator nextObject])) {
         // only delete the files we created
         if (![fileName hasPrefix:CDV_PHOTO_PREFIX]) {
@@ -241,7 +241,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
             hasErrors = YES;
         }
     }
-
+    
     CDVPluginResult* pluginResult;
     if (hasErrors) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:@"One or more files failed to be deleted."];
@@ -254,7 +254,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
 - (void)popoverControllerDidDismissPopover:(id)popoverController
 {
     UIPopoverController* pc = (UIPopoverController*)popoverController;
-
+    
     [pc dismissPopoverAnimated:YES];
     pc.delegate = nil;
     if (self.pickerController && self.pickerController.callbackId && self.pickerController.pickerPopoverController) {
@@ -380,7 +380,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
     BOOL saveToPhotoAlbum = options.saveToPhotoAlbum;
     UIImage* image = nil;
     UIImage* thumbNail = nil;
-
+    
     switch (options.destinationType) {
         case DestinationTypeNativeUri:
         {
@@ -393,8 +393,11 @@ static NSSet* org_apache_cordova_validArrowDirections;
         case DestinationTypeFileUri:
         {
             image = [self retrieveImage:info options:options];
-            thumbNail = [self retrieveThumbnail:info options:options];
             NSData* data = [self processImage:image info:info options:options];
+            if (options.returnThumbnail) {
+                thumbNail = [self retrieveThumbnail:info options:options];
+                
+            }
             if (data) {
                 
                 NSString* extension = options.encodingType == EncodingTypePNG? @"png" : @"jpg";
@@ -405,7 +408,17 @@ static NSSet* org_apache_cordova_validArrowDirections;
                 if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
                     result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
                 } else {
-                    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[self urlTransformer:[NSURL fileURLWithPath:filePath]] absoluteString]];
+                    NSString * imageString = [[self urlTransformer:[NSURL fileURLWithPath:filePath]] absoluteString];
+                    if (thumbNail) {
+                        NSData* thumbNailData = [self processImage:thumbNail info:info options:options];
+                        NSString * thumbNailString = [thumbNailData base64EncodedString];
+                        NSString *resultString = [NSString stringWithFormat:@"%@,%@", imageString, thumbNailString];
+                        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:resultString];
+                    }else{
+                        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:imageString];
+                    }
+                    
+                    
                 }
             }
         }
@@ -476,7 +489,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
 - (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingImage:(UIImage*)image editingInfo:(NSDictionary*)editingInfo
 {
     NSDictionary* imageInfo = [NSDictionary dictionaryWithObject:image forKey:UIImagePickerControllerOriginalImage];
-
+    
     [self imagePickerController:picker didFinishPickingMediaWithInfo:imageInfo];
 }
 
@@ -498,21 +511,21 @@ static NSSet* org_apache_cordova_validArrowDirections;
         weakSelf.hasPendingOperation = NO;
         weakSelf.pickerController = nil;
     };
-
+    
     [[cameraPicker presentingViewController] dismissViewControllerAnimated:YES completion:invoke];
 }
 
 - (CLLocationManager*)locationManager
 {
-	if (locationManager != nil) {
-		return locationManager;
-	}
+    if (locationManager != nil) {
+        return locationManager;
+    }
     
-	locationManager = [[CLLocationManager alloc] init];
-	[locationManager setDesiredAccuracy:kCLLocationAccuracyNearestTenMeters];
-	[locationManager setDelegate:self];
+    locationManager = [[CLLocationManager alloc] init];
+    [locationManager setDesiredAccuracy:kCLLocationAccuracyNearestTenMeters];
+    [locationManager setDelegate:self];
     
-	return locationManager;
+    return locationManager;
 }
 
 - (void)locationManager:(CLLocationManager*)manager didUpdateToLocation:(CLLocation*)newLocation fromLocation:(CLLocation*)oldLocation
@@ -577,7 +590,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
     if (locationManager == nil) {
         return;
     }
-
+    
     [self.locationManager stopUpdatingLocation];
     self.locationManager = nil;
     
@@ -655,7 +668,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
 {
     return nil;
 }
-    
+
 - (void)viewWillAppear:(BOOL)animated
 {
     SEL sel = NSSelectorFromString(@"setNeedsStatusBarAppearanceUpdate");
